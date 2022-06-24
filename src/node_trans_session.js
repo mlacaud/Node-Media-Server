@@ -76,6 +76,7 @@ class NodeTransSession extends EventEmitter {
     });
 
     this.ffmpeg_exec.on('close', (code) => {
+      let self = this;
       Logger.log('[Transmuxing end] ' + this.conf.streamPath);
       this.emit('end');
       fs.readdir(ouPath, function (err, files) {
@@ -88,7 +89,7 @@ class NodeTransSession extends EventEmitter {
                 || filename.endsWith('.m4s')
                 || filename.endsWith('.tmp')
               ) && fs.existsSync(ouPath + '/' + filename)
-              && !this.conf.noDelete
+              && !self.conf.noDelete
             ) {
               try {
                 fs.unlinkSync(ouPath + '/' + filename);
