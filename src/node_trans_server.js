@@ -82,6 +82,11 @@ class NodeTransServer {
       session.end();
     }
   }
+
+  stop() {
+    context.nodeEvent.off('postPublish', this.onPostPublish.bind(this));
+    context.nodeEvent.off('donePublish', this.onDonePublish.bind(this));
+  }
 }
 
 module.exports = NodeTransServer;
