@@ -21,7 +21,7 @@ class NodeRelaySession extends EventEmitter {
 
   run() {
     let format = this.conf.ouPath.startsWith('rtsp://') ? 'rtsp' : 'flv';
-    let argv = ['-re', '-i', this.conf.inPath, '-c', 'copy', '-f', format, this.conf.ouPath];
+    let argv = ['-i', this.conf.inPath];
     if (this.conf.inPath[0] === '/' || this.conf.inPath[1] === ':') {
       argv.unshift('-1');
       argv.unshift('-stream_loop');
@@ -33,6 +33,25 @@ class NodeRelaySession extends EventEmitter {
         argv.unshift('-rtsp_transport');
       }
     }
+
+    if (this.conf.addMutedAudio) {
+      argv.unshift('-f');
+      argv.unshift('lavfi');
+      argv.unshift('-i');
+      argv.unshift('anullsrc=channel_layout=stereo:sample_rate=44100');
+      argv.push('-c:v');
+      argv.push('copy');
+      argv.push('-c:a');
+      argv.push('aac');
+    } else {
+      argv.push('-c');
+      argv.push('copy');
+    }
+
+    argv.unshift('-re');
+    argv.push('-f');
+    argv.push(format);  
+    argv.push(this.conf.ouPath)
     
     Logger.log('[relay task] id='+this.id,'cmd=ffmpeg', argv.join(' '));
 
