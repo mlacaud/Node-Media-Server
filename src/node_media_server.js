@@ -95,15 +95,19 @@ class NodeMediaServer {
   stop() {
     if (this.nrs) {
       this.nrs.stop();
+      this.nrs = null;
     }
     if (this.nhs) {
       this.nhs.stop();
+      this.nhs = null;
     }
     if (this.nls) {
       this.nls.stop();
+      this.nls = null;
     }
     if (this.nfs) {
       this.nfs.stop();
+      this.nfs = null;
     }
   }
 
