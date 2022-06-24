@@ -47,8 +47,10 @@ class NodeTransServer {
       apps += this.config.trans.tasks[i].app;
       apps += ' ';
     }
-    context.nodeEvent.on('postPublish', this.onPostPublish.bind(this));
-    context.nodeEvent.on('donePublish', this.onDonePublish.bind(this));
+    this.postPublishRef = this.onPostPublish.bind(this);
+    this.donePublishRef = this.onDonePublish.bind(this)
+    context.nodeEvent.on('postPublish', this.postPublishRef);
+    context.nodeEvent.on('donePublish', this.donePublishRef);
     Logger.log(`Node Media Trans Server started for apps: [ ${apps}] , MediaRoot: ${this.config.http.mediaroot}, ffmpeg version: ${version}`);
   }
 
@@ -84,8 +86,13 @@ class NodeTransServer {
   }
 
   stop() {
-    context.nodeEvent.off('postPublish', this.onPostPublish.bind(this));
-    context.nodeEvent.off('donePublish', this.onDonePublish.bind(this));
+    context.nodeEvent.removeListener('postPublish', this.postPublishRef);
+    context.nodeEvent.removeListener('donePublish', this.donePublishRef);
+    for (let session of this.transSessions.entries()) {
+      let key = session[0],
+          value = session[1];
+      value.end()
+    }
   }
 }
 

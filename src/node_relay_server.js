@@ -35,12 +35,19 @@ class NodeRelayServer {
       Logger.error('Download the latest ffmpeg static program:', getFFmpegUrl());
       return;
     }
-    context.nodeEvent.on('relayPull', this.onRelayPull.bind(this));
-    context.nodeEvent.on('relayPush', this.onRelayPush.bind(this));
-    context.nodeEvent.on('prePlay', this.onPrePlay.bind(this));
-    context.nodeEvent.on('donePlay', this.onDonePlay.bind(this));
-    context.nodeEvent.on('postPublish', this.onPostPublish.bind(this));
-    context.nodeEvent.on('donePublish', this.onDonePublish.bind(this));
+    this.relayPullRef = this.onRelayPull.bind(this);
+    this.relayPushRef = this.onRelayPush.bind(this);
+    this.prePlayRef = this.onPrePlay.bind(this);
+    this.donePlayRef = this.onDonePlay.bind(this);
+    this.postPublishRef = this.onPostPublish.bind(this);
+    this.donePublishRef = this.onDonePublish.bind(this);
+
+    context.nodeEvent.on('relayPull', this.relayPullRef);
+    context.nodeEvent.on('relayPush', this.relayPushRef);
+    context.nodeEvent.on('prePlay', this.prePlayRef);
+    context.nodeEvent.on('donePlay', this.donePlayRef);
+    context.nodeEvent.on('postPublish', this.postPublishRef);
+    context.nodeEvent.on('donePublish', this.donePublishRef);
     this.staticCycle = setInterval(this.onStatic.bind(this), 1000);
     Logger.log('Node Media Relay Server started');
   }
@@ -199,13 +206,23 @@ class NodeRelayServer {
   }
 
   stop() {
-    context.nodeEvent.off('relayPull', this.onRelayPull.bind(this));
-    context.nodeEvent.off('relayPush', this.onRelayPush.bind(this));
-    context.nodeEvent.off('prePlay', this.onPrePlay.bind(this));
-    context.nodeEvent.off('donePlay', this.onDonePlay.bind(this));
-    context.nodeEvent.off('postPublish', this.onPostPublish.bind(this));
-    context.nodeEvent.off('donePublish', this.onDonePublish.bind(this));
+    context.nodeEvent.removeListener('relayPull', this.relayPullRef);
+    context.nodeEvent.removeListener('relayPush', this.relayPushRef);
+    context.nodeEvent.removeListener('prePlay', this.prePlayRef);
+    context.nodeEvent.removeListener('donePlay', this.donePlayRef);
+    context.nodeEvent.removeListener('postPublish', this.postPublishRef);
+    context.nodeEvent.removeListener('donePublish', this.donePublishRef);
     clearInterval(this.staticCycle);
+    for (let session of this.staticSessions.entries()) {
+      let key = session[0],
+          value = session[1];
+      value.end()
+    }
+    for (let session of this.dynamicSessions.entries()) {
+      let key = session[0],
+          value = session[1];
+      value.end()
+    }
   }
 }
 
