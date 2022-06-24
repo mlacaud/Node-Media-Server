@@ -199,6 +199,12 @@ class NodeRelayServer {
   }
 
   stop() {
+    context.nodeEvent.off('relayPull', this.onRelayPull.bind(this));
+    context.nodeEvent.off('relayPush', this.onRelayPush.bind(this));
+    context.nodeEvent.off('prePlay', this.onPrePlay.bind(this));
+    context.nodeEvent.off('donePlay', this.onDonePlay.bind(this));
+    context.nodeEvent.off('postPublish', this.onPostPublish.bind(this));
+    context.nodeEvent.off('donePublish', this.onDonePublish.bind(this));
     clearInterval(this.staticCycle);
   }
 }
