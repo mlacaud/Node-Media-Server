@@ -35,10 +35,10 @@ class NodeRelaySession extends EventEmitter {
     }
 
     if (this.conf.addMutedAudio) {
-      argv.unshift('-f');
-      argv.unshift('lavfi');
-      argv.unshift('-i');
       argv.unshift('anullsrc=channel_layout=stereo:sample_rate=44100');
+      argv.unshift('-i');
+      argv.unshift('lavfi');
+      argv.unshift('-f');
       argv.push('-c:v');
       argv.push('copy');
       argv.push('-c:a');
